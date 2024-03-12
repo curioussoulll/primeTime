@@ -1,52 +1,26 @@
-import React, { useState } from 'react';
-import { useQuery } from 'react-query';
-import axios from 'axios';
-import { useFormContext } from 'react-hook-form';
+// TextInput.tsx
+import React from 'react';
 
-interface ComboBoxProps {
+interface TextInputProps {
+  value: string;
+  onChange: (value: string) => void;
   disabled?: boolean;
+  error?: string | null;
 }
 
-const ComboBox: React.FC<ComboBoxProps> = ({ disabled }) => {
-  const { register, setValue } = useFormContext();
-  const [searchTerm, setSearchTerm] = useState('');
-  const { data, isLoading, isError } = useQuery(['universities', searchTerm], () =>
-    axios.get(`http://universities.hipolabs.com/search?country=Czech+Republic&name=${searchTerm}`)
-      .then((response) => response.data),
-  );
-
-  const handleInputChange = (value: string) => {
-    setSearchTerm(value);
-  };
-
-  const handleItemSelect = (selectedUniversity: any) => {
-    setValue('university', selectedUniversity.name); // Set value using React Hook Form
-    setSearchTerm('');
-  };
-
+const TextInput: React.FC<TextInputProps> = ({ value, onChange, disabled = false, error = null }) => {
   return (
     <div>
       <input
         type="text"
-        name="university"
-        ref={register}
-        value={searchTerm}
-        onChange={(e) => handleInputChange(e.target.value)}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
+        style={{ border: error ? '1px solid red' : '', color: disabled ? 'grey' : 'black' }}
       />
-      {isLoading && <p>Loading...</p>}
-      {isError && <p>Error loading data</p>}
-      {data && data.length > 0 && (
-        <div>
-          {data.map((university: any) => (
-            <div key={university.name} onClick={() => handleItemSelect(university)}>
-              {university.name}
-            </div>
-          ))}
-        </div>
-      )}
+      {error && <div style={{ color: 'red' }}>{error}</div>}
     </div>
   );
 };
 
-export default ComboBox;
+export default TextInput;
